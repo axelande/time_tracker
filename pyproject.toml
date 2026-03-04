@@ -1,0 +1,24 @@
+[project]
+name = "time-tracker"
+version = "0.1.0"
+description = "Windows desktop time-tracking app with an always-on-top floating timer, background window focus tracking, and a full management GUI."
+requires-python = ">=3.12"
+dependencies = [
+    "customtkinter>=5.2.0",
+    "pywin32>=306",
+    "psutil>=5.9.0",
+    "tkcalendar>=1.6.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-mock>=3.12",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[project.scripts]
+time-tracker = "src.main:main"
