@@ -297,11 +297,17 @@ class ReportsFrame(customtkinter.CTkFrame):
         # Include elapsed time from the currently running timer
         if self._timer_engine.is_running:
             active_id = self._timer_engine.active_project_id
-            running_secs = self._timer_engine.elapsed_seconds
-            if active_id is not None and running_secs > 0:
-                totals_dict = dict(totals)
-                totals_dict[active_id] = totals_dict.get(active_id, 0.0) + running_secs
-                totals = sorted(totals_dict.items(), key=lambda x: x[1], reverse=True)
+            active_entry = self._timer_engine._active_entry
+            if active_id is not None and active_entry and active_entry.start_time:
+                # Only add running time if the entry falls within the selected date range
+                if start <= active_entry.start_time <= end:
+                    running_secs = self._timer_engine.elapsed_seconds
+                    if running_secs > 0:
+                        totals_dict = dict(totals)
+                        # Replace (not add): elapsed_seconds already includes
+                        # prior completed entries via _today_prior_seconds
+                        totals_dict[active_id] = running_secs
+                        totals = sorted(totals_dict.items(), key=lambda x: x[1], reverse=True)
 
         projects = {p.id: p for p in self._project_repo.get_all(include_archived=True)}
 
