@@ -103,7 +103,7 @@ class FloatingTimer(customtkinter.CTkToplevel):
         self._is_running = is_running
         if is_running:
             self._toggle_btn.configure(
-                text="Stop", fg_color="#E04040", hover_color="#B03030"
+                text="Stop", fg_color="#5305f0", hover_color="#1e0159"
             )
             if project_name:
                 self._project_var.set(project_name)

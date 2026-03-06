@@ -95,9 +95,11 @@ class ReportsFrame(customtkinter.CTkFrame):
 
     def _get_date_range(self) -> tuple[datetime, datetime]:
         selected = self._calendar.get_date()
-        day = datetime.strptime(selected, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-        start = day.replace(hour=0, minute=0, second=0, microsecond=0)
-        end = day.replace(hour=23, minute=59, second=59, microsecond=0)
+        # Parse as local date, then convert boundaries to UTC for DB queries
+        local_tz = datetime.now().astimezone().tzinfo
+        day = datetime.strptime(selected, "%Y-%m-%d").replace(tzinfo=local_tz)
+        start = day.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(timezone.utc)
+        end = day.replace(hour=23, minute=59, second=59, microsecond=0).astimezone(timezone.utc)
         return start, end
 
     def _build_timeline(self, start: datetime, end: datetime) -> None:
@@ -238,14 +240,16 @@ class ReportsFrame(customtkinter.CTkFrame):
             fill=track_bg, outline="",
         )
 
-        # Hour grid lines and labels
+        # Hour grid lines and labels (displayed in local time)
+        local_tz = datetime.now().astimezone().tzinfo
         num_hours = int(total_secs / 3600)
         for h in range(num_hours + 1):
             x = left_pad + (h * 3600 / total_secs) * draw_width
             canvas.create_line(x, track_top, x, track_bottom, fill=grid_color)
-            display_hour = (min_hour.hour + h) % 24
+            utc_time = min_hour + timedelta(hours=h)
+            local_hour = utc_time.astimezone(local_tz).hour
             canvas.create_text(
-                x, label_y, text=f"{display_hour:02d}:00",
+                x, label_y, text=f"{local_hour:02d}:00",
                 fill=text_color, font=("", 8),
             )
 
